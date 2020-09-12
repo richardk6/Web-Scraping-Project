@@ -9,18 +9,6 @@ def init_browser():
         executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
         return Browser("chrome", **executable_path, headless=False)
 
-
-def scrape_all():
-    browser = init_browser()
-    mars_dict = {}
-    mars_dict["mars_news"] = news_title
-    mars_dict["mars_paragraph"] = news_p
-    mars_dict["mars_image"] = mars_image()
-    mars_dict["mars_facts"] = mars_facts()
-    mars_dict["mars_hemistphere"] = mars_hemispheres()
-
-    return mars_dict
-
 # Mars News
 
 def mars_news():
@@ -38,10 +26,12 @@ def mars_news():
 
     news_p = soup.find("div", class_="article_teaser_body")
 
-    return news_title, news_p
+    news_info = [news_title, news_p]
+    return news_info
 
 # Mars Featured Image
 def mars_image():
+    browser = init_browser()
     url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(url)
 
@@ -78,7 +68,8 @@ def mars_facts():
     return df.to_html(classes="table table-striped")
 
 # Mars Hemispheres 
-def mars_hemispheres():
+def hemispheres():
+    browser = init_browser()
     url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
 
@@ -114,6 +105,18 @@ def mars_hemispheres():
     ]
     
     return hemisphere_image_urls
+
+def scrape_all():
+    browser = init_browser()
+    mars_dict = {}
+    news_info = mars_news()
+    mars_dict["mars_title"] = news_info[0]
+    mars_dict["mars_paragraph"] = news_info[1]
+    mars_dict["mars_image"] = mars_image()
+    mars_dict["mars_facts"] = mars_facts()
+    mars_dict["mars_hemistphere"] = hemispheres()
+
+    return mars_dict
 
 # Close the browser after scraping
     browser.quit()
