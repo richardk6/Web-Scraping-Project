@@ -9,11 +9,22 @@ def init_browser():
         executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
         return Browser("chrome", **executable_path, headless=False)
 
-def scrape_info():
+
+def scrape_all():
     browser = init_browser()
     mars_dict = {}
+    mars_dict["mars_news"] = news_title
+    mars_dict["mars_paragraph"] = news_p
+    mars_dict["mars_image"] = mars_image()
+    mars_dict["mars_facts"] = mars_facts()
+    mars_dict["mars_hemistphere"] = mars_hemispheres()
 
-    # Mars News
+    return mars_dict
+
+# Mars News
+
+def mars_news():
+    browser = init_browser()
     url = "https://mars.nasa.gov/news/"
     browser.visit(url)
 
@@ -27,10 +38,10 @@ def scrape_info():
 
     news_p = soup.find("div", class_="article_teaser_body")
 
-    mars_dict["news title"] = news_title
-    mars_dict["news paragraph"] = news_p
+    return news_title, news_p
 
-    # Mars Featured Image
+# Mars Featured Image
+def mars_image():
     url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(url)
 
@@ -49,26 +60,25 @@ def scrape_info():
 
     featured_url = "https://www.jpl.nasa.gov" + featured_image_url
 
-    mars_dict["featured url"] = featured_url
+    return featured_url
 
 
-    # Mars Facts Table
-    url = "https://space-facts.com/mars/"
-    tables = pd.read_html(url)
+# Mars Facts Table
+def mars_facts():
+    # Add try/except for error handling
+    try:
+        # use 'read_html' to scrape the facts table into a dataframe
+        df = pd.read_html('http://space-facts.com/mars/')[0]
+    except BaseException:
+        return None
+    # assign columns and set index of dataframe
+    df.columns = ['Description', 'Mars']
+    df.set_index('Description', inplace=True)
+    # Convert dataframe into HTML format, add bootstrap
+    return df.to_html(classes="table table-striped")
 
-    df = tables[0]
-    df.columns = ["Planet Attributes", "Mars"]
-    df.set_index("Planet Attributes", inplace=True)
-
-    html_table = df.to_html()
-
-    html_table.replace('\n', '')
-
-    df.to_html('table.html')
-
-    mars_dict['table.html'] = table.html
-
-    # Mars Hemispheres 
+# Mars Hemispheres 
+def mars_hemispheres():
     url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
 
@@ -103,10 +113,7 @@ def scrape_info():
         {'title': 'Valles Marineris Hemisphere Enhanced', 'img_url': 'https://astropedia.astrogeology.usgs.gov/download/Mars/Viking/valles_marineris_enhanced.tif/full.jpg'}
     ]
     
-    mars_dict['hemisphere_images'] = hemisphere_image_urls
+    return hemisphere_image_urls
 
-    # Close the browser after scraping
+# Close the browser after scraping
     browser.quit()
-    
-    return mars_dict
-
