@@ -14,10 +14,10 @@ def scrape_all():
     mars_dict = {}
     news_info = mars_news()
     mars_dict["mars_title"] = news_info[0]
-    mars_dict["mars_paragraph"] = news_info[1]
+    mars_dict["mars_p"] = news_info[1]
     mars_dict["mars_image"] = mars_image()
     mars_dict["mars_facts"] = mars_facts()
-    mars_dict["mars_hemisphere"] = hemispheres()
+    mars_dict["hemisphere_image_urls"] = hemispheres()
 
     return mars_dict
 
@@ -82,20 +82,45 @@ def mars_facts():
 # Mars Hemispheres 
 def hemispheres():
     browser = init_browser()
+
+    # Visit website
     url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
 
-    time.sleep(10)
+    response = requests.get(url)
+    soup = bs(response.text, 'html.parser').find_all("a",class_ = "itemLink product-item")
+    hemi_titles = []
+    for i in soup:
+        title = i.find("h3").text
+        hemi_titles.append(title)
+        print(title)
 
-    hemisphere_image_urls = []
-    
-    for i in range(4):
-        browser.find_by_css("a.product-item h3")[i].click()
-        hemi_data = scrape_all_hemisphere(browser.html)
-        hemisphere_image_urls.append(hemi_data)
-        browser.back()
+    hemi_imglist = []
+
+    for x in range(len(hemi_titles)):
+        try:
+            browser.click_link_by_partial_text(hemi_titles[x])
+        except:
+            browser.find_link_by_text('2').first.click()
+            browser.click_link_by_partial_text(hemi_titles[x])
+            html = browser.html
+            soup2 = bs(html, 'html.parser')
+            hemi_soup = soup2.find('div', 'downloads')
+            hemi_url = hemi_soup.a['href']
+            #urls.append(hemi_url)
+            hemi_dict={"title": hemi_titles[x], 'img_url': hemi_url}
+            hemi_imglist.append(hemi_dict)
+            print(hemi_imglist)
+
+            # Find the src for the image
+            hemisphere_image_urls = [
+            {'title': 'Cerberus Hemisphere Enhanced', 'img_url': 'https://astropedia.astrogeology.usgs.gov/download/Mars/Viking/cerberus_enhanced.tif/full.jpg'}, 
+            {'title': 'Schiaparelli Hemisphere Enhanced', 'img_url': 'https://astropedia.astrogeology.usgs.gov/download/Mars/Viking/schiaparelli_enhanced.tif/full.jpg'}, 
+            {'title': 'Syrtis Major Hemisphere Enhanced', 'img_url': 'https://astropedia.astrogeology.usgs.gov/download/Mars/Viking/syrtis_major_enhanced.tif/full.jpg'}, 
+            {'title': 'Valles Marineris Hemisphere Enhanced', 'img_url': 'https://astropedia.astrogeology.usgs.gov/download/Mars/Viking/valles_marineris_enhanced.tif/full.jpg'}
+            ]
     
     return hemisphere_image_urls
 
-# Close the browser after scraping
+    # Close the browser after scraping
     browser.quit()
