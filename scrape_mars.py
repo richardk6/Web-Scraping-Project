@@ -16,26 +16,26 @@ def scrape_all():
 # Mars News
 
 # def mars_news():
-    #browser = init_browser()
-    # url = "https://mars.nasa.gov/news/"
-    # browser.visit(url)
+    browser = init_browser()
+    url = "https://mars.nasa.gov/news/"
+    browser.visit(url)
 
-    # time.sleep(10)
+    time.sleep(10)
 
-    #html = browser.html
-    #soup = bs(html, "html.parser")
+    html = browser.html
+    soup = bs(html, "html.parser")
 
-    #try:
-        # title = soup.find("ul", class_="item_list")
-        # news_title = title.find("div", class_="content_title")
+    try:
+        title = soup.find("ul", class_="item_list")
+        news_title = title.find("div", class_="content_title")
     
-        # news_p = soup.find("div", class_="article_teaser_body")
+        news_p = soup.find("div", class_="article_teaser_body")
     
-    # except AttributeError:
-        # return None, None
+    except AttributeError:
+        return None, None
 
-    # mars_dict["mars_title"] = news_title
-    # mars_dict["mars_p"] = news_p
+    mars_dict["mars_title"] = news_title
+    mars_dict["mars_p"] = news_p
 
 # Mars Featured Image
 # def mars_image():
