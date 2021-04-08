@@ -1,5 +1,5 @@
-# web-scraping-challenge
-Homework 12: Web-Scraping-Challenge.
+# web-scraping-project
+Web-Scraping-Project.
 
 Scraped a number of Mars websites to put together an html index of many Mars news, facts & images. For the first scrapping, set it up in a jupyter notebook.
 
